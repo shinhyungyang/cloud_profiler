@@ -73,7 +73,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif()
 enable_c_compiler_flag_if_supported("-Wall")
 enable_cxx_compiler_flag_if_supported("-Wall")
-#enable_cxx_compiler_flag_if_supported("-Wextra")
+enable_cxx_compiler_flag_if_supported("-Wextra")
 #enable_cxx_compiler_flag_if_supported("-pedantic")
 
 #

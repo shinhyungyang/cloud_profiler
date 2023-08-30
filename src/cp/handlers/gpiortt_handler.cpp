@@ -371,12 +371,12 @@ static bool initGPIO(GPIORTT_closure * GPIORTTcl) {
 
   GPIORTTcl->map_base = mmap(0, BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
       GPIORTTcl->fd, GPIO_REG_MAP);
-  GPIORTTcl->gpio = static_cast<volatile uint32_t *>(GPIORTTcl->map_base);
-  if (GPIORTTcl->gpio < 0) {
+  if (GPIORTTcl->map_base == MAP_FAILED) {
     logFail(__FILE__, __LINE__, "Mmap failed.\n");
     close(GPIORTTcl->fd);
     return false;
   }
+  GPIORTTcl->gpio = static_cast<volatile uint32_t *>(GPIORTTcl->map_base);
 
   // Set all pins input
   *(GPIORTTcl->gpio + (FSEL_OFFSET)) |= 0xFFFFFFFF;
