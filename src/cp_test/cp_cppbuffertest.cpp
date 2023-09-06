@@ -50,9 +50,9 @@ int main(int argc, char ** argv) {
   ;
 
   options.parse_positional("positional");
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h") || options.count("positional")) {
+  if (option_result.count("h") || option_result.count("positional")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     std::cout << "number_of_iterations accepts postfix modifiers: "
               << std::endl;
@@ -60,10 +60,10 @@ int main(int argc, char ** argv) {
     exit(EXIT_FAILURE);
   }
 
-  std::string iterstring = options["iterations"].as<std::string>();
+  std::string iterstring = option_result["iterations"].as<std::string>();
   int nr_iterations = convertA2I(iterstring.c_str());
 
-  if (options.count("n")) {
+  if (option_result.count("n")) {
     netcnf = true;
   }
 

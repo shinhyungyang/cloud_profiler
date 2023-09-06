@@ -29,7 +29,7 @@ int main(int argc, char ** argv) {
   ;
 
   options.parse_positional("positional");
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
   int retval = PAPI_library_init(PAPI_VER_CURRENT);
   if (retval != PAPI_VER_CURRENT)

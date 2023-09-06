@@ -48,9 +48,9 @@ int main (int argc, char ** argv) {
   ("h,help", "Usage information")
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -61,21 +61,21 @@ int main (int argc, char ** argv) {
 
   // Set up data to request configuration:
 
-  if (options.count("sv_ip")) {
-    sv_dotted_quad = options["sv_ip"].as<std::string>();
+  if (option_result.count("sv_ip")) {
+    sv_dotted_quad = option_result["sv_ip"].as<std::string>();
   } else {
     sv_dotted_quad = conf_server_default_ip;
   }
-  if (!options.count("sv_p")) {
+  if (!option_result.count("sv_p")) {
     sv_port_nr = conf_server_default_port;
   }
-  if (options.count("ch_name")) {
-    ch_name = options["ch_name"].as<std::string>();
+  if (option_result.count("ch_name")) {
+    ch_name = option_result["ch_name"].as<std::string>();
   } else {
     ch_name = "default_channel";
   }
-  if (options.count("ch_ip")) {
-    ch_dotted_quad = options["ch_ip"].as<std::string>(); 
+  if (option_result.count("ch_ip")) {
+    ch_dotted_quad = option_result["ch_ip"].as<std::string>(); 
   } else {
     char tmp_buf[MAX_STR_SIZE];
     if (0 == getIPDottedQuad(tmp_buf, MAX_STR_SIZE)) {
@@ -85,13 +85,13 @@ int main (int argc, char ** argv) {
       logFail(__FILE__, __LINE__, "unable to obtain IP address");
     }
   }
-  if (!options.count("ch_pid")) {
+  if (!option_result.count("ch_pid")) {
     ch_pid = getpid();
   }
-  if (!options.count("ch_tid")) {
+  if (!option_result.count("ch_tid")) {
     ch_tid = syscall(SYS_gettid);
   }
-  if (!options.count("ch_nr")) {
+  if (!option_result.count("ch_nr")) {
     ch_nr = -1;
   }
 

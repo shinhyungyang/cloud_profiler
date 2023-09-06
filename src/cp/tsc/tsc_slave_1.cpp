@@ -75,9 +75,9 @@ int main (int argc, char ** argv) {
   ("h,help",          "Usage information")
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     std::cout << "number_of_iterations accepts postfix modifiers: "
               << std::endl;
@@ -85,7 +85,7 @@ int main (int argc, char ** argv) {
     exit(EXIT_FAILURE);
   }
 
-  std::string iterstring = options["iterations"].as<std::string>();
+  std::string iterstring = option_result["iterations"].as<std::string>();
   int nr_iterations = convertA2I(iterstring.c_str());
 
   setLogFileName("/tmp/tsc_slave_1");
@@ -105,12 +105,12 @@ int main (int argc, char ** argv) {
 
 
   // Set up master's IP address and port:
-  if (options.count("sv_ip")) {
-    sv_dotted_quad = options["sv_ip"].as<std::string>();
+  if (option_result.count("sv_ip")) {
+    sv_dotted_quad = option_result["sv_ip"].as<std::string>();
   } else {
     sv_dotted_quad = tsc_master_default_ip;
   }
-  if (!options.count("sv_p")) {
+  if (!option_result.count("sv_p")) {
     sv_port_nr = tsc_master_default_port;
   }
 

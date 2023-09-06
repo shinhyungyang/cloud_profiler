@@ -30,9 +30,9 @@ int main(int argc, char ** argv) {
   ;
 
   options.parse_positional("positional");
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h") || options.count("positional")) {
+  if (option_result.count("h") || option_result.count("positional")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -49,9 +49,9 @@ int main(int argc, char ** argv) {
   }
 
   // Select configuration table:
-  if (options.count("cnf")) {
+  if (option_result.count("cnf")) {
     // User requested particular configuration table:
-    std::string cnf = options["cnf"].as<std::string>();
+    std::string cnf = option_result["cnf"].as<std::string>();
     setConfigTable(cnf);
   } else {
     setDefaultConfigTable();

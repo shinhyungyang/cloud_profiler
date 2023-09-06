@@ -81,9 +81,9 @@ int main (int argc, char ** argv) {
   ("h,help", "Usage information")
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -100,12 +100,12 @@ int main (int argc, char ** argv) {
 
   // Set up data to request configuration:
 
-  if (options.count("sv_ip")) {
-    sv_dotted_quad = options["sv_ip"].as<std::string>();
+  if (option_result.count("sv_ip")) {
+    sv_dotted_quad = option_result["sv_ip"].as<std::string>();
   } else {
     sv_dotted_quad = tsc_master_default_ip;
   }
-  if (!options.count("sv_p")) {
+  if (!option_result.count("sv_p")) {
     sv_port_nr = tsc_master_default_port;
   }
 

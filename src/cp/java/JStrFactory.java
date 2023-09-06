@@ -522,9 +522,9 @@ public class JStrFactory {
         // Every variable in a program must have a value before its value is
         // used:
         // * Each class variable, instance variable, or array component is
-        //   initialized with a default value when it is created (ง15.9,
-        //   ยง15.10.2):
-        //   * For all reference types (ง4.3), the default value is null.
+        //   initialized with a default value when it is created (15.9,
+        //   15.10.2):
+        //   * For all reference types (4.3), the default value is null.
         String[] bucket = new String[tuningKnob];
         cloud_profiler.fetchZMQBucket(channel, tuningKnob, bucket);
         while (!queue.offer(bucket)) { ; }

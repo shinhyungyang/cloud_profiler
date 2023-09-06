@@ -11,6 +11,7 @@ extern "C" {
 
 #include <errno.h>        // for using nanosleep
 #include <vector>
+#include <iostream>
 #include <thread>
 #include <zmq.hpp>
 
@@ -50,17 +51,17 @@ int recvMultiThreaded(int argc, char ** argv) {
   ("h,help",              "Usage information")
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
 
   // Set up data to request configuration:
 
-  if (options.count("sv_addr")) {
-    sv_addresses = options["sv_addr"].as<std::string>();
+  if (option_result.count("sv_addr")) {
+    sv_addresses = option_result["sv_addr"].as<std::string>();
   } else {
     sv_addresses = "127.0.0.1:9106";
   }
@@ -128,17 +129,17 @@ int recvFromZMQQueues(int argc, char ** argv) {
   ("h,help",              "Usage information")
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
 
   // Set up data to request configuration:
 
-  if (options.count("sv_addr")) {
-    sv_addresses = options["sv_addr"].as<std::string>();
+  if (option_result.count("sv_addr")) {
+    sv_addresses = option_result["sv_addr"].as<std::string>();
   } else {
     sv_addresses = "127.0.0.1:9106";
   }
@@ -174,9 +175,9 @@ int fetchInt(int argc, char ** argv) {
   ("h,help",              "Usage information")
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }

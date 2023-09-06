@@ -24,20 +24,20 @@ int main(int argc, char ** argv) {
   ;
 
   options.parse_positional("positional");
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h") || options.count("positional")) {
+  if (option_result.count("h") || option_result.count("positional")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  if (options.count("n")) {
+  if (option_result.count("n")) {
     netcnf = true;
   }
 
-  if (options.count("g")) {
+  if (option_result.count("g")) {
 
-    if (options.count("m")) {
+    if (option_result.count("m")) {
       isMaster = true;
     }
   }

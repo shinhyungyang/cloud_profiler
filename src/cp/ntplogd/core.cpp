@@ -76,9 +76,9 @@ int main(int argc, char ** argv) {
     "without an option", cxxopts::value<std::vector<std::string>>())
   ;
 
-  options.parse(argc, argv);
+  auto option_result = options.parse(argc, argv);
 
-  if (options.count("h")) {
+  if (option_result.count("h")) {
     std::cout << options.help({"", "Group"}) << std::endl;
     exit(EXIT_FAILURE);
   }
