@@ -1,0 +1,35 @@
+**/*.o
+**/*.d
+**/*.jar
+**/*.class
+jni/cloud_profiler_wrap.cxx
+jni/cp/swig/*.java
+jni/cp/native/libcloud_profiler.so
+src/cp_test/cp_cpptest
+src/cp_test/cp_jtest
+src/jagent_test/_cp_extract.lst
+
+# binary built by cmake
+/build_dbg
+/build_rel*
+/build
+/build_release
+/build_debug
+
+# vscode config files
+.vscode
+
+# tsc by-products
+/src/cp/tsc/query_tsc/tarballs
+
+# python caches
+**/__pycache__/*
+
+# eclipse project file
+.project
+
+src/3rdparty/streaming-benchmarks/storm-benchmarks/.factorypath
+
+# vim swap files
+**/.*.sw*
+**/.sw*

@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+TMUX_CMD=;
+TMUX_SESSION="gce";
+HVMUSER="elclab_streaming";
+ZONE="asia-east1-a";
+
+HVMHOME="/home/${HVMUSER}"
+
+tmux has-session -t ${TMUX_SESSION} 2>/dev/null
+
+if [ $? -ne 0 ]
+then
+  tmux new-session -s ${TMUX_SESSION} -d
+fi
+
+declare -A HVMIDS
+declare -A HVMIPS
+declare -A HVMS
+
+idx="0"
+for ii in `seq -f %02g 1 9; seq -f %02g 11 30`
+do
+  HVMIDS[${idx}]="${ii}"
+  HVMIPS[${idx}]="10.140.0.1${ii}"
+  HVMS[${idx}]="streaming-group-0-00${ii}"
+  idx=$((${idx}+1))
+done
+
+declare -A PIDS
+declare -A BINS
+
+DEST_DIR="/tmp"
+for iter in `seq 0 $((${#HVMS[@]}-1))`
+do
+  HVM="${HVMS[${iter}]}"
+
+  inext="$((${iter}+1))"
+  if [ "${inext}" -gt "$((${#HVMS[@]}-1))" ]
+  then
+    inext="0"
+  fi
+
+  HVM_CMD='iter="0"; { for PORTNUM in `seq 9110 9147`; do ~/git/cloud_profiler/build_rel/bin/tsc_slave_2 -a -p "${PORTNUM}" & pids[${iter}]="$!"; iter=$((${iter}+1)); done }; { for PORTNUM in `seq 9110 9147`; do ~/git/cloud_profiler/build_rel/bin/tsc_slave_1 --sv_ip '"${HVMIPS[${inext}]}"' --sv_p "${PORTNUM}" --b_size 1 -a -i 100MB & pids[${iter}]="$!"; iter=$((${iter}+1)); done }; { for pid in ${pids[*]}; do wait ${pid}; done };'
+  tmpfile=`mktemp`
+  echo '#!/usr/bin/env bash' > ${tmpfile}
+  echo 'PATH=/opt/jvm/jdk1.8.0_74/bin:/opt/jvm/jdk1.8.0_74/jre/bin:/opt/maven/3.3.9/bin:/home/shyang/bin:/opt/rh/devtoolset-4/root/usr/bin:${PATH}' >> ${tmpfile}
+  echo 'export PATH' >> ${tmpfile}
+  echo 'export LD_LIBRARY_PATH=/opt/rh/devtoolset-4/root/usr/lib64:/opt/gcc/5.4.0/lib64:/opt/papi/5.4.1/lib:/opt/boost/1.61.0/lib:/opt/zeromq/4.1.4/lib' >> ${tmpfile}
+  echo "${HVM_CMD}" >> ${tmpfile}
+  chmod 744 ${tmpfile}
+
+  TARGET_FILE="${tmpfile}"
+  gcloud compute scp ${TARGET_FILE} ${HVMUSER}@${HVM}:${DEST_DIR} --scp-flag="-pr" &
+  PIDS[${iter}]="$!"
+  BINS[${iter}]="${tmpfile}"
+done
+
+for pid in ${PIDS[*]}
+do
+  wait ${pid}
+done
+
+for iter in `seq 0 $((${#HVMS[@]}-1))`
+do
+  HVM="${HVMS[${iter}]}"
+
+  HVM_CMD="${BINS[${iter}]}"
+  TMUX_CMD="gcloud compute ssh ${HVMUSER}@${HVM} --command=\"${HVM_CMD};\" --zone=${ZONE};"
+  tmpfile=`mktemp`
+  echo "${TMUX_CMD}" > ${tmpfile}
+  chmod 744 ${tmpfile}
+  tmux new-window -t ${TMUX_SESSION} "${tmpfile}; rm ${tmpfile};"
+done

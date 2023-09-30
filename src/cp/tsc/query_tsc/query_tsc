@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+ROOT_DIR="$(cd "`dirname "$0"`"; pwd)"
+SRC=${ROOT_DIR}/../query_tsc
+
+cd ${ROOT_DIR}
+
+source ./config
+source ./common
+source ./pkg_info
+source ./os
+
+HAS_NONSTOPTSC="$(lscpu | grep -c "nonstop_tsc")"
+HAS_CONSTANTTSC="$(lscpu | grep -c "constant_tsc")"
+
+if [ "${HAS_CONSTANTTSC}" != "1" ]
+then
+  echo "0"
+  exit 1
+fi
+
+if [ "${HAS_NONSTOPTSC}" != "1" ]
+then
+  echo "0"
+  exit 1
+fi
+
+cleanup
+setup_build_dirs
+DISTRO_AND_VERSION=`query_distro_and_version`
+
+if [ "${DISTRO_AND_VERSION}" = "ubuntu 14.04" ]
+then
+  for f in `ls -tr /var/log/dmesg*`
+  do
+    if [[ "${f}" =~ .*gz ]]
+    then
+      zcat ${f}
+    else
+      cat ${f}
+    fi
+  done | grep -o "tsc.*calibration.*MHz" | tail -1 | awk '{print $6}'
+elif [ "${DISTRO_AND_VERSION}" = "ubuntu 16.04" ]
+then
+  for f in `ls -tr /var/log/syslog*`
+  do
+    if [[ "${f}" =~ .*gz ]]
+    then
+      zcat ${f}
+    else
+      cat ${f}
+    fi
+  done | grep -o "tsc.*calibration.*MHz" | tail -1 | awk '{print $6}'
+elif [ "${DISTRO_AND_VERSION}" = "ubuntu 18.04" ]
+then
+  for f in `ls -tr /var/log/kern.log*`
+  do
+    if [[ "${f}" =~ .*gz ]]
+    then
+      zcat ${f}
+    else
+      cat ${f}
+    fi
+  done | grep "tsc.*TSC$" | tail -1 | awk '{print $10}'
+elif [ "${DISTRO_AND_VERSION}" = "centos 7" ]
+then
+  for f in `ls -tr /var/log/dmesg*`
+  do
+    if [[ "${f}" =~ .*gz ]]
+    then
+      zcat ${f}
+    else
+      cat ${f}
+    fi
+  done | grep -o "tsc.*calibration.*MHz" | tail -1 | awk '{print $6}'
+elif [ "${DISTRO_AND_VERSION}" = "centos 8" ]
+then
+  dmesg | grep -o "tsc.*calibration.*MHz" | tail -1 | awk '{print $6}'
+fi
+

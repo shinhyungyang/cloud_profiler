@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+
+function header() {
+    echo "====$(for i in $(seq ${#1}); do echo -e "=\c"; done)===="
+    echo "==  ${1}  =="
+    echo "====$(for i in $(seq ${#1}); do echo -e "=\c"; done)===="
+}
+
+# Prints an error and exits: 
+function die() {
+    ##[[ -z ${VERBOSE} ]] && exec 1>&5 2>&6
+    #echo ""
+    #echo "${1}"
+    #[[ "${*}" =~ "-n" ]] && echo
+    #[[ "${*}" =~ "-h" ]]
+    #echo "Exiting..."
+    #exit
+    echo "error:${?}"
+    exit
+}
+
+function partition_version_number() {
+  # ${1} shall contain a string with a version number in the format X.Y.Z.
+  # The X, Y and Z components are assigned to ${v_major}, ${v_minor} and
+  # and ${v_patch}. The function exits with an error if the version-number
+  # format is wrong.
+
+  re='^(([[:digit:]]+)\.([[:digit:]]+)(\.([[:digit:]]+))?)$'
+
+  [[ "${1}" =~ $re ]]
+
+  v_major=${BASH_REMATCH[2]}
+  v_minor=${BASH_REMATCH[3]}
+  v_patch=${BASH_REMATCH[5]}
+
+  if [[ -z ${BASH_REMATCH[1]} ]]; then
+    echo "ERROR: received version number <${1}>"
+    echo "ERROR: version number not in X.Y.Z format, exiting..."
+    exit
+  fi
+  #echo "ma: <${v_major}>, mi: <${v_minor}>, p: <${v_patch}>, ${BASH_REMATCH[5]}"
+}
+
+function check_sudo() {
+  sudo -k # invalidate cached credentials
+  echo
+  echo "Checking if sudo is available"
+  echo "Please enter your password if a prompt appears!"
+  if ! sudo -v 2>/dev/null; then
+    warn "Sudo is not available! Disabling sudo options..." -n
+    NO_SUDO=true
+  fi
+}
+
+function ask_confirmation() {
+  echo "This script will build ${1} and install it in dir ${2}."
+  while true; do
+    read -p "Do you wish to proceed (y/n)? " yn
+    case $yn in
+        [y] ) break;;
+        [n] ) echo "Exiting..."; exit;;
+        * ) echo "Please answer yes (y) or no (n).";;
+    esac
+  done
+}
+
+function ask_proceed() {
+  while true; do
+    read -p "Do you wish to proceed (y/n)? " yn
+    case $yn in
+        [y] ) break;;
+        [n] ) echo "Exiting..."; exit;;
+        * ) echo "Please answer yes (y) or no (n).";;
+    esac
+  done
+}
+
+function sudo_box() {
+  local m=0
+  for l in "$@"
+  do
+    if [ "${m}" -lt "${#l}" ]; then
+      m=${#l}
+    fi
+  done 
+  local cols=$(tput cols)
+  if [ "$((${m} + 8))" -le "${cols}" ]; then
+    # Box fits terminal width:
+    echo "@@@@$(for i in $(seq ${m}); do echo -e "@\c"; done)@@@@"
+    for l in "$@"
+    do
+      echo "@@  $l$(for i in $(seq $((${#l} + 1)) ${m}); do echo -e " \c"; done)  @@"
+    done
+    echo "@@@@$(for i in $(seq ${m}); do echo -e "@\c"; done)@@@@"
+  else
+    # Box does not fit terminal width:
+    echo "$(for i in $(seq ${cols}); do echo -e "@\c"; done)"
+    for l in "$@"
+    do
+      echo "$l"
+    done
+    echo "$(for i in $(seq ${cols}); do echo -e "@\c"; done)"
+  fi
+}
+
+function counsel_user_packages() {
+  local PKG_ERR=${1}
+  local PKG_WARN=${2}
+  if [[ -n ${PKG_ERR} ]]; then
+    echo "ERROR: the following packages are missing:"
+    echo "${PKG_ERR}"
+    die "Install and try again..."
+  fi
+  if [[ -n ${PKG_WARN} ]]; then
+    echo "WARNING: this script is unable to test for the availability"
+    echo "of the following packages. Please make sure that they are"
+    echo "installed."
+    echo "${PKG_WARN}"
+    die "Install and try again..."
+  fi
+}
+
+function verbose() {
+  if [[ "${VERBOSE}" = false ]]; then
+    return
+  fi
+  local cols=$(tput cols)
+  echo "$(for i in $(seq ${cols}); do echo -e "v\c"; done)"
+  for l in "$@"
+  do
+    echo "$l"
+  done
+  echo "$(for i in $(seq ${cols}); do echo -e "v\c"; done)"
+}
+
+function setup_install_dir() {
+  #
+  # This function establishes the following properties or terminates the
+  # program otherwise:
+  # (1) Directory ${INSTDIR} exists 
+  # (2) Directory ${INSTDIR} is write-able by us
+  # (3) Directory ${INSTDIR} is empty
+  #
+  header "Setting up install dir ${INSTDIR}..."
+
+  PATH_ONLY=${INSTDIR%${1}};
+
+  if [[ ! -d ${PATH_ONLY} ]]; then
+    echo "Parent of install dir, i.e., dir ${PATH_ONLY} does not exist"
+    echo "Create this dir with \"sudo mkdir ${PATH_ONLY}\" and re-run the script"
+    exit
+  fi
+
+  if [[ -f ${INSTDIR} ]]; then
+    # ${INSTDIR} is a file:
+    echo "File of name ${INSTDIR} already exists"
+    echo "Remove and re-run the script"
+    exit
+  fi
+
+  if [[ -e ${INSTDIR} ]]; then
+    # ${INSTDIR} already exists:
+    if [[ -d ${INSTDIR} ]]; then
+      # ${INSTDIR} is a directory:
+      if [ ! -w ${INSTDIR} ]; then
+        echo -e "Write-permisions required for \c"
+        echo -e "dir ${INSTDIR}. Exiting..."
+        exit
+      fi
+      if [ "$(ls -A $INSTDIR)" ]; then
+        echo "Install dir ${INSTDIR} not empty."
+        echo "Empty or remove dir and re-run the script"
+        exit
+      else
+        echo "Installing into empty dir ${INSTDIR}"
+      fi
+    else
+      echo "${INSTDIR} already exists and is not a dir."
+      echo "Remove and re-run the script"
+      exit
+    fi
+  else
+    # ${INSTDIR} does not exist yet, but the parent exists:
+    echo "Going to create dir ${INSTDIR}"
+    if [ ! -w ${PATH_ONLY} ]; then
+      # Script does not have write permissions:
+      NEED_PERM_FIX=true
+      sudo_box "The following command will create ${INSTDIR}." \
+               "This operation requires root permisions."      \
+               "Please enter your password when being asked."
+      check_sudo
+      sudo mkdir ${INSTDIR}
+      sudo chown $USER:$USER ${INSTDIR}
+    else
+      mkdir ${INSTDIR}
+    fi
+  fi
+}
+
+function fix_install_dir_permissions() {
+  if [[ ${NEED_PERM_FIX} = "true" ]]; then
+    sudo_box "The following command will change the permissions" \
+             "of dir ${INSTDIR} to root:root."                   \
+             "Please enter your password when being asked."
+    sudo chown -R root:root ${INSTDIR} \
+     || die "Cannot change ${INSTDIR} permissions to root:root"
+  fi 
+}
+
+function cleanup() {
+  local x=$(find . -maxdepth 1 \( -name "stage_1" -o -name "stage_2" \))
+  if [[ -n ${x} ]]; then
+    #header "Cleaning up previous build..." 
+    rm -rf stage_1 stage_2 
+  fi
+}
+
+function setup_build_dirs() {
+  mkdir -p tarballs || die "Cannot create dir tarballs"
+  #mkdir -p ${LLVM_BUILD_DIR} || die "Cannot create dir ${LLVM_BUILD_DIR}"
+}
+

@@ -1,0 +1,11 @@
+set(CP_SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/cp)
+set(CP_LIBDIR ${CMAKE_CURRENT_BINARY_DIR}/cp)
+set(CP_JAR ${CP_LIBDIR}/cloud_profilerJNI.jar)
+set(JOPT_JAR ${CMAKE_CURRENT_SOURCE_DIR}/jopt_simple/jopt-simple-5.0.4.jar)
+
+add_subdirectory(cp)
+add_subdirectory(cp_test)
+add_subdirectory(postprocessing)
+add_subdirectory(JCTools)
+add_subdirectory(storm-client)
+add_subdirectory(Kryo)

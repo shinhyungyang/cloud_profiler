@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+
+# Table of Ubuntu package names:
+declare -A pck_ubuntu=(
+  [doxygen]="doxygen"
+  [graphviz]="graphviz"
+  [libatomic]="libatomic-ops-dev"
+  [libedit-dev]="libedit-dev"
+  [libncurses-dev]="libncurses5-dev"
+  [libncurses-dev]="libncurses5-dev"
+  [libxml2-dev]="libxml2-dev"
+  [python2-dev]="python2.7-dev "
+  [python]="python"
+)
+
+# Table of Redhat package names:
+declare -A pck_redhat=(
+  [doxygen]="doxygen"
+  [graphviz]="graphviz"
+  [libatomic]="libatomic"
+  [libedit-dev]="libedit-devel"
+  [libncurses-dev]="ncurses-devel"
+  [libxml2-dev]="libxml2-devel"
+  [python2-dev]="python-devel"
+  [python]="python"
+)
+
+#
+# Queries:
+#
+
+#RH:
+# repoquery -f "*histedit.h"

@@ -1,0 +1,2 @@
+#!/usr/bin/env sh 
+java -Djava.library.path=${CP_LIBDIR} -cp ${JOPT_JAR}:${CP_JAR}:${CMAKE_CURRENT_BINARY_DIR}/cp_jkernels.jar cp_jkernels "$@"

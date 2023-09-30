@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+
+function get_nr_logical_cores() {
+  if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    JOBS="-j$(nproc --all)"
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Mac OSX:
+    JOBS=`sysctl -n hw.logicalcpu`
+  #elif [[ "$OSTYPE" == "cygwin" ]]; then
+  #  # POSIX compatibility layer and Linux environment emulation for Windows
+  #elif [[ "$OSTYPE" == "msys" ]]; then
+  #  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+  #elif [[ "$OSTYPE" == "win32" ]]; then
+  #  # I'm not sure this can happen.
+  #elif [[ "$OSTYPE" == "freebsd"* ]]; then
+  #  # ...
+  else
+    # Unknown:
+    JOBS=1
+  fi
+}
+
+function locate_ninja() {
+  command -v ninja >/dev/null 2>&1
+  if [[ "${?}" -eq "0" ]]; then
+    NINJA="ninja"
+  else
+    command -v ninja-build >/dev/null 2>&1
+    if [[ "${?}" -eq "0" ]]; then
+      NINJA="ninja-build"
+    else
+       echo "ERROR: cannot locate ninja"
+       echo "For Ubuntu and CentOS: \"apt install ninja-build\""
+       die ""
+    fi
+  fi
+}
+
+function install_distro() {
+  command -v python3 --version >/dev/null 2>&1
+  if [[ "${?}" -ne "0" ]]; then
+    command -v python3.6 --version >/dev/null 2>&1
+    if [[ "${?}" -ne "0" ]]; then
+      HAVE_PYTHON="false"
+      return
+    else
+      ln -s `which python3.6` ./python3 >/dev/null 2>&1
+      PATH=${PATH}:${PWD}
+    fi
+  else
+    HAVE_PYTHON="true"
+  fi
+  if [[ ! -f ${DISTRO} ]]; then
+    #header "Setting up prerequisites (package distro)"
+    cd ./tarballs || die "ERROR: setup_distro: dir \"tarballs\" does not exist"
+    wget ${DISTRO_LINK} >/dev/null 2>&1 || die "Failed to download \"distro\""
+    tar xf ${DISTRO_TAR} || die "Failed to untar ${DISTRO_TAR}"
+    mkdir -p ${CODE_CACHE} \
+     || die "Failed to create dir \"${CODE_CACHE}\""
+    cp ${DISTRO_DIR}/distro.py ${CODE_CACHE} \
+     || die "Failed to copy distro.py to \"${CODE_CACHE}\""
+    cd ..
+  fi
+}
+
+#
+# query_distro():
+#
+# - download distro Python package and install (if not already present)
+# - set variables:
+# -  append ${CODE_CACHE} to ${PYTHON_PATH} and export
+# -  HAVE_PYTHON: true/false
+# -  DISTRIBUTION: OS/distribution we're running on
+# -  DISTRIBUTION_LIKE: up-stream distribution (e.g., Debian on Ubuntu)
+# -  ARCH_TYPE
+#
+function query_distro() {
+  install_distro
+  export PYTHONPATH=${PYTHONPATH}:${CODE_CACHE}
+  DISTRIBUTION=`${SRC}/query_distro.py`
+  if [[ "${?}" -ne "0" ]]; then
+    die "Unable to determine OS/distribution"
+  fi
+  DISTRIBUTION_LIKE=`${SRC}/query_distro_like.py`
+  if [[ "${?}" -ne "0" ]]; then
+    if [[ "$OSTYPE" == "linux-gnu" ]]; then
+      # We need this on Linux:
+      die "ERROR: Cannot determine type of OS distribution"
+    else
+      DISTRIBUTION_LIKE="NONE"
+    fi
+  fi
+  ARCH_TYPE=`uname -m` \
+   || die "ERROR: Cannot determine architecture"
+  verbose "OS/Distribution: ${DISTRIBUTION}" \
+          "OS/Distribution like: ${DISTRIBUTION_LIKE}" \
+          "ARCH_TYPE: ${ARCH_TYPE}"
+}
+
+function query_distro_and_version() {
+  install_distro
+  export PYTHONPATH=${PYTHONPATH}:${CODE_CACHE}
+  DISTRO_AND_VERSION=`${SRC}/query_distro_and_version.py`
+  if [[ "${?}" -ne "0" ]]; then
+    die "Unable to determine OS/distribution"
+  fi
+  echo ${DISTRO_AND_VERSION}
+}
+
+function check_bash_version() {
+  if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
+    echo "ERROR: you need a bash version >= 4.0.0"
+    echo "Upgrade bash and continue"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      echo "Try \" brew update && brew install bash\""
+      echo "http://clubmate.fi/upgrade-to-bash-4-in-mac-os-x/"
+      die ""
+    fi
+  fi
+}
+
+#
+# Configure package query command
+# See https://wiki.archlinux.org/index.php/Pacman/Rosetta
+#
+function setup_PCK_QUERY() {
+  #if [[ -n ${PCK_QUERY} ]]; then
+  #  return
+  #fi
+  if [[ -z ${DISTRIBUTION} ]]; then
+    die "ERROR: \$\{DISTRIBUTION\} not set."
+  fi
+  case "${DISTRIBUTION}" in
+    "ubuntu")
+      PCK_QUERY="dpkg -s"
+      ;;
+    "centos")
+      PCK_QUERY="rpm -qi"
+      ;;
+    *)
+      die "ERROR: unsupported distribution"
+      ;;
+  esac  
+}
+
+function query_package () {
+  setup_PCK_QUERY
+  case "${DISTRIBUTION}" in
+    'ubuntu')
+       echo -e "Checking ${PCK_QUERY} ${pck_ubuntu[${1}]}: \c"
+       ${PCK_QUERY} ${pck_ubuntu[${1}]} >/dev/null 2>&1
+       if [[ "${?}" -ne "0" ]]; then
+         PKG_ERR+="${pck_ubuntu[${1}]} "
+         echo "missing"
+       else
+         echo "ok"
+       fi
+       ;;
+    'centos')
+       echo -e "Checking ${PCK_QUERY} ${pck_redhat[${1}]}: \c"
+       ${PCK_QUERY} ${pck_redhat[${1}]} >/dev/null 2>&1
+       if [[ "${?}" -ne "0" ]]; then
+         PKG_ERR+="${pck_redhat[${1}]} "
+         echo "missing"
+       else
+         echo "ok"
+       fi
+       ;; 
+    *)
+      PKG_WARN+=" ${1}"
+      return
+      ;;
+  esac 
+}
