@@ -20,7 +20,7 @@ const char path_to_output[] = "/tmp";
 #define MAX_STR_SIZE (128)
 #define MAX_IPV4_STR_SIZE (15)
 
-const char conf_server_default_ip[] = "cp.elc.cs.yonsei.ac.kr";
+const char conf_server_default_ip[] = "10.140.2.1";
 const int  conf_server_default_port = 9100;
 const char conf_server_max_param    = 7; // Max #parameters per conf request, reply
 
