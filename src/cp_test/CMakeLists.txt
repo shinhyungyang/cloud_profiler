@@ -165,7 +165,7 @@ add_jar(
   ENTRY_POINT cp_jkernels
   INCLUDE_JARS ${CP_JAR} ${JOPT_JAR}
 )
-add_dependencies(cp_jtest cloud_profiler)
+add_dependencies(cp_jkernels cloud_profiler)
 
 if(CP_CONFIG_JLISTS)
 
