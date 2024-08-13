@@ -2,7 +2,7 @@
 find_package(Threads REQUIRED)
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS atomic)
 
 include(UseJava)
 #include_directories(${JNI_INCLUDE_DIRS})
