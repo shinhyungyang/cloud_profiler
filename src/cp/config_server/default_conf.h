@@ -728,7 +728,7 @@ conf_table moobench_id = {
 };
 
 conf_table moobench_bid_bin = {
-  "moobench_bid",
+  "moobench_bid_bin",
   {
     { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY_TSC, 0, {} },
     { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY_TSC, 0, {} },
@@ -736,7 +736,7 @@ conf_table moobench_bid_bin = {
 };
 
 conf_table moobench_bid_zstd = {
-  "moobench_bid",
+  "moobench_bid_zstd",
   {
     { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, ZSTD, 0, {} },
     { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, ZSTD, 0, {} },
@@ -744,7 +744,7 @@ conf_table moobench_bid_zstd = {
 };
 
 conf_table moobench_bid_lzo1x = {
-  "moobench_bid",
+  "moobench_bid_lzo1x",
   {
     { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, LZO1X, 0, {} },
     { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, LZO1X, 0, {} },
