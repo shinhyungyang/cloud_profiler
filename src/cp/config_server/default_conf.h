@@ -572,6 +572,46 @@ conf_table streaming_benchmarks_test = {
   }
 };
 
+conf_table moobench_nuh = {
+  "moobench_nuh",
+  {
+    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", NULLH, ASCII, 0, {} },
+    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", NULLH, ASCII, 0, {} },
+  }
+};
+
+conf_table moobench_id = {
+  "moobench_id",
+  {
+    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", IDENTITY, ASCII, 0, {} },
+    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", IDENTITY, ASCII, 0, {} },
+  }
+};
+
+conf_table moobench_bid_bin = {
+  "moobench_bid",
+  {
+    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY_TSC, 0, {} },
+    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY_TSC, 0, {} },
+  }
+};
+
+conf_table moobench_bid_zstd = {
+  "moobench_bid",
+  {
+    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, ZSTD, 0, {} },
+    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, ZSTD, 0, {} },
+  }
+};
+
+conf_table moobench_bid_lzo1x = {
+  "moobench_bid",
+  {
+    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, LZO1X, 0, {} },
+    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, LZO1X, 0, {} },
+  }
+};
+
 conf_table streaming_benchmarks_nuh = {
   "streaming_benchmarks_nuh",
   {
