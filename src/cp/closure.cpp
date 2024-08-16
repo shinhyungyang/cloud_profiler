@@ -44,7 +44,8 @@ bool closure::openChannel(int32_t ch_nr, std::string ch_msg, log_format format) 
   }
 
   std::ostringstream nvme_output;
-  nvme_output << path_to_output << "/md0";
+  //nvme_output << path_to_output << "/md0";
+  nvme_output << path_to_output;
   struct stat st = {0,};
   if (stat(nvme_output.str().c_str(), &st) == -1) {
     mkdir(nvme_output.str().c_str(), 0700);
