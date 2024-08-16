@@ -765,6 +765,11 @@ std::vector<conf_table> conf_tables = {
   streaming_benchmarks_test,
   streaming_benchmarks_nuh,
   gpio_test,
+  moobench_nuh,
+  moobench_id,
+  moobench_bid_bin,
+  moobench_bid_zstd,
+  moobench_bid_lzo1x,
 };
 
 #endif
