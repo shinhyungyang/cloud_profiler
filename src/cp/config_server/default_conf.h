@@ -730,8 +730,8 @@ conf_table moobench_id = {
 conf_table moobench_bid_bin = {
   "moobench_bid_bin",
   {
-    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY_TSC, 0, {} },
-    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY_TSC, 0, {} },
+    { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY, 0, {} },
+    { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY, BINARY, 0, {} },
   }
 };
 
@@ -748,7 +748,7 @@ conf_table moobench_bid_lzo1x = {
   {
     { "MonitoredClassInstrumented  tin", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, LZO1X, 0, {} },
     { "MonitoredClassInstrumented tout", ".*", ".*", ".*", ".*", BUFFER_IDENTITY_COMP, LZO1X, 0, {} },
-  }
+}
 };
 
 std::vector<conf_table> conf_tables = {
