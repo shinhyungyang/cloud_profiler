@@ -2,6 +2,7 @@
 #define __JAVA_AGENT_HANDLER_H__
 
 #include <string>
+#include <stdint.h>
 
 class JavaAgentHandler
 {
