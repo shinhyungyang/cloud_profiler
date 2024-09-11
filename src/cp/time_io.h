@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdint>
 
 void writeTimeStampedCtr(std::ostream & outf, struct timespec & ts, 
                     uint64_t ctr, bool newline);
