@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CP_REPO: https://github.com/shinhyungyang/cloud_profiler
+  SQUASH_REPO: https://github.com/shinhyungyang/squash
+
+jobs:
+  build-test-ubuntu:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    name: build cloud_profiler ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - name: install dependencies
+        run: |
+          apt update
+          apt update && apt -y upgrade && apt -y install git cmake swig g++ \
+            openjdk-21-jdk cppzmq-dev libpapi-dev libboost-all-dev
+          apt -y autoremove && apt -y clean && apt -y autoclean
+          mkdir /git && mkdir /build
+      - name: build squash
+        run: |
+          cd /git
+          git clone ${SQUASH_REPO} --branch alpine --recursive --depth 1
+          mkdir /build/build_release-squash && cd /build/build_release-squash
+          cmake /git/squash && make -j$(nproc) install
+      - name: build cloud_profiler
+        run: |
+          cd /git
+          git clone ${CP_REPO}
+          mkdir /build/build_release-cloud_profiler
+          cd /build/build_release-cloud_profiler
+          cmake /git/cloud_profiler && make -j$(nproc) install
+      - name: clean up
+        run: |
+          rm -rf /git && rm -rf /build
