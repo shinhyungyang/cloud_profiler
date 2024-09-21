@@ -26,21 +26,21 @@ jobs:
           sudo apt -q update
           sudo apt -q -y install git cmake swig g++ \
             openjdk-21-jdk cppzmq-dev libpapi-dev libboost-all-dev
-          mkdir ${GITROOT} ${BUILDROOT}
+          mkdir ${HOME}/git ${HOME}/build
       - name: build squash
         run: |
-          cd ${GITROOT}
+          cd ${HOME}/git
           git clone ${SQUASH_REPO} --branch alpine --recursive --depth 1
-          mkdir ${BUILDROOT}/build_release-squash
-          cd ${BUILDROOT}/build_release-squash
-          cmake ${GITROOT}/squash && make -j$(nproc) install
+          mkdir ${HOME}/build/build_release-squash
+          cd ${HOME}/build/build_release-squash
+          cmake ${HOME}/git/squash && make -j$(nproc) install
       - name: build cloud_profiler
         run: |
-          cd ${GITROOT}
+          cd ${HOME}/git
           git clone ${CP_REPO}
-          mkdir ${BUILDROOT}/build_release-cloud_profiler
-          cd ${BUILDROOT}/build_release-cloud_profiler
-          cmake ${GITROOT}/cloud_profiler && make -j$(nproc) install
+          mkdir ${HOME}/build/build_release-cloud_profiler
+          cd ${HOME}/build/build_release-cloud_profiler
+          cmake ${HOME}/git/cloud_profiler && make -j$(nproc) install
       - name: clean up
         run: |
-          rm -rf ${GITROOT} ${BUILDROOT}
+          rm -rf ${HOME}/git ${HOME}/build
