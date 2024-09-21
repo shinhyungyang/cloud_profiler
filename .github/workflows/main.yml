@@ -33,14 +33,16 @@ jobs:
           git clone ${SQUASH_REPO} --branch alpine --recursive --depth 1
           mkdir ${HOME}/build/build_release-squash
           cd ${HOME}/build/build_release-squash
-          cmake ${HOME}/git/squash && make -j$(nproc) install
+          cmake ${HOME}/git/squash && make -j$(nproc)
+          sudo make install
       - name: build cloud_profiler
         run: |
           cd ${HOME}/git
           git clone ${CP_REPO}
           mkdir ${HOME}/build/build_release-cloud_profiler
           cd ${HOME}/build/build_release-cloud_profiler
-          cmake ${HOME}/git/cloud_profiler && make -j$(nproc) install
+          cmake ${HOME}/git/cloud_profiler && make -j$(nproc)
+          sudo make install
       - name: clean up
         run: |
           rm -rf ${HOME}/git ${HOME}/build
