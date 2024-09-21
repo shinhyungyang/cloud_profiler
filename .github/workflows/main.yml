@@ -8,6 +8,8 @@ on:
 env:
   CP_REPO: https://github.com/shinhyungyang/cloud_profiler
   SQUASH_REPO: https://github.com/shinhyungyang/squash
+  GITROOT: ${HOME}/git 
+  BUILDROOT: ${HOME}/build
 
 jobs:
   build-test-ubuntu:
@@ -24,20 +26,21 @@ jobs:
           sudo apt -q update
           sudo apt -q -y install git cmake swig g++ \
             openjdk-21-jdk cppzmq-dev libpapi-dev libboost-all-dev
-          mkdir /git && mkdir /build
+          mkdir ${GITROOT} ${BUILDROOT}
       - name: build squash
         run: |
-          cd /git
+          cd ${GITROOT}
           git clone ${SQUASH_REPO} --branch alpine --recursive --depth 1
-          mkdir /build/build_release-squash && cd /build/build_release-squash
-          cmake /git/squash && make -j$(nproc) install
+          mkdir ${BUILDROOT}/build_release-squash
+          cd ${BUILDROOT}/build_release-squash
+          cmake ${GITROOT}/squash && make -j$(nproc) install
       - name: build cloud_profiler
         run: |
-          cd /git
+          cd ${GITROOT}
           git clone ${CP_REPO}
-          mkdir /build/build_release-cloud_profiler
-          cd /build/build_release-cloud_profiler
-          cmake /git/cloud_profiler && make -j$(nproc) install
+          mkdir ${BUILDROOT}/build_release-cloud_profiler
+          cd ${BUILDROOT}/build_release-cloud_profiler
+          cmake ${GITROOT}/cloud_profiler && make -j$(nproc) install
       - name: clean up
         run: |
-          rm -rf /git && rm -rf /build
+          rm -rf ${GITROOT} ${BUILDROOT}
