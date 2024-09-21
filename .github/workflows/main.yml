@@ -21,10 +21,9 @@ jobs:
     steps:
       - name: install dependencies
         run: |
-          apt update
-          apt update && apt -y upgrade && apt -y install git cmake swig g++ \
+          sudo apt -q update
+          sudo apt -q -y install git cmake swig g++ \
             openjdk-21-jdk cppzmq-dev libpapi-dev libboost-all-dev
-          apt -y autoremove && apt -y clean && apt -y autoclean
           mkdir /git && mkdir /build
       - name: build squash
         run: |
