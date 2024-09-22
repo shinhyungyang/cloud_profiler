@@ -7,7 +7,7 @@ cmake_policy(SET CMP0086 NEW) # Create and obey ``-module'' argument
 cmake_policy(SET CMP0144 NEW) # Obey <PACKAGE>_ROOT hints
 
 project(cloud_profiler
-        VERSION 0.3.2
+        VERSION 0.4
         DESCRIPTION "Cloud instrumentation and profiling library"
 )
 
