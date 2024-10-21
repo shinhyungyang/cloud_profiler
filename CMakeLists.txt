@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.15.1 FATAL_ERROR)
 # (for SWIG_ADD_LIBRARY)
 
-#cmake_policy(SET CMP0074 NEW) # Obey <Packge>_ROOT hints
 cmake_policy(SET CMP0078 NEW) # ``UseSWIG`` generates standard target names
 cmake_policy(SET CMP0086 NEW) # Create and obey ``-module'' argument
-cmake_policy(SET CMP0144 NEW) # Obey <PACKAGE>_ROOT hints
+
+if(CMAKE_VERSION VERSION_LESS "3.27.0")
+   cmake_policy(SET CMP0074 NEW) # Obey <Packge>_ROOT hints
+else if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27.0")
+   cmake_policy(SET CMP0144 NEW) # Obey <PACKAGE>_ROOT hints
+endif()
 
 project(cloud_profiler
         VERSION 0.3.2
