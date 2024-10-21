@@ -6,7 +6,7 @@ cmake_policy(SET CMP0086 NEW) # Create and obey ``-module'' argument
 
 if(CMAKE_VERSION VERSION_LESS "3.27.0")
    cmake_policy(SET CMP0074 NEW) # Obey <Packge>_ROOT hints
-else if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27.0")
+elseif(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27.0")
    cmake_policy(SET CMP0144 NEW) # Obey <PACKAGE>_ROOT hints
 endif()
 
